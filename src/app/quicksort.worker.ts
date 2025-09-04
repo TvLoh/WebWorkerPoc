@@ -2,7 +2,7 @@
 
 addEventListener('message', ({ data }) => {
   if (data.cmd === 'sort') {
-    // Demo: Sortierung in JS (funktioniert immer)
+    // Fallback: Sortieren in JavaScript, damit der Worker läuft und der Build funktioniert.
     const sorted = [...data.array].sort((a, b) => a - b);
     postMessage({ type: 'sorted', array: sorted });
   }
