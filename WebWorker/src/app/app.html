@@ -1,0 +1,24 @@
+<div>
+  <h2>Angular WebWorker + WASM (Quicksort)</h2>
+  <p>Status: {{ status() }}</p>
+
+  <label>
+    Array eingeben (Komma-getrennt):
+    <input
+      [(ngModel)]="inputArray"
+      (ngModelChange)="inputArray = inputArray.map(Number)"
+      [value]="inputArray.join(',')"
+    >
+  </label>
+  <button
+    (click)="sortArray()"
+  >
+    Sortieren
+  </button>
+  @if (sortedArray().length) {
+    <div>
+      <h3>Sortiertes Array:</h3>
+      <pre>{{ sortedArray() }}</pre>
+    </div>
+  }
+</div>
