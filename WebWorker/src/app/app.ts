@@ -1,49 +1,51 @@
-import { ChangeDetectorRef, Component, signal } from '@angular/core';
+import { Component, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ClickVisualizerComponent } from './shared/ui/klickVisualizer';
 
 @Component({
   selector: 'app-root',
-  imports: [FormsModule],
+  imports: [FormsModule, ClickVisualizerComponent],
   templateUrl: './app.html',
   standalone: true,
   styleUrl: './app.scss'
 })
 export class App {
-  inputArray = [5, 2, 9, 1, 5, 6];
-  sortedArray = signal<number[]>([]);
-  status = signal<string>('Warte auf WebWorker/WASM...');
-  worker?: Worker;
 
-  constructor(private readonly cdr: ChangeDetectorRef) {}
+  result: WritableSignal<number> = signal(0)
+  counter: number = 0
+  fibuNumber: number = 45
 
-  ngOnInit() {
+  incrementCounter() {
+    this.counter++
+  }
+
+  resetCounter() {
+    this.counter = 0
+    this.result.set(0)
+  }
+
+  calculateWithWorker(input: number) {
+    this.result.set(0)
     if (typeof Worker !== 'undefined') {
-      // Korrekt: Worker mit Pfad zur Worker-Datei erstellen
-      this.worker = new Worker(new URL('./quicksort.worker', import.meta.url), { type: 'module' });
-      this.worker.onmessage = ({ data }) => {
-        if (data.type === 'wasm-ready') {
-          this.status.set('WASM geladen!');
-          this.cdr.detectChanges(); // Manuelles UI-Update (zoneless)
-        }
-        if (data.type === 'sorted') {
-          this.sortedArray.set(data.array);
-          this.status.set('Sortierung abgeschlossen!');
-          this.cdr.detectChanges(); // Manuelles UI-Update (zoneless)
-        }
-      };
+      const worker = new Worker(new URL('./worker.worker.ts', import.meta.url))
+      worker.onmessage = ({data}) => {
+        this.result.set(data)
+        worker.terminate()
+      }
+      worker.onerror = (error) => console.error('Worker error:', error)
+      worker.postMessage(input);
     } else {
-      this.status.set('WebWorker werden nicht unterstützt!');
-      this.cdr.detectChanges();
+      console.error('Web Workers are not supported in this environment.')
     }
   }
 
-  sortArray() {
-    if (this.worker) {
-      this.status.set('Sortiere...');
-      this.cdr.detectChanges();
-      this.worker.postMessage({ type: 'sort', array: this.inputArray });
-    }
+  calculateWithoutWorker(number: number) {
+    this.result.set(0)
+    this.result.set(this.calculateFibonacci(number))
   }
 
-  protected readonly Number = Number;
+  calculateFibonacci(num: number): number {
+    if (num <= 1) return num
+    return this.calculateFibonacci(num - 1) + this.calculateFibonacci(num - 2)
+  }
 }

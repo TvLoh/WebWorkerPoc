@@ -1,24 +1,32 @@
+<app-click-visualizer/>
 <div>
-  <h2>Angular WebWorker + WASM (Quicksort)</h2>
-  <p>Status: {{ status() }}</p>
-
-  <label>
-    Array eingeben (Komma-getrennt):
-    <input
-      [(ngModel)]="inputArray"
-      (ngModelChange)="inputArray = inputArray.map(Number)"
-      [value]="inputArray.join(',')"
-    >
-  </label>
   <button
-    (click)="sortArray()"
+    (click)="calculateWithWorker(fibuNumber)"
   >
-    Sortieren
+    <strong>mit</strong> WW {{fibuNumber}}
   </button>
-  @if (sortedArray().length) {
-    <div>
-      <h3>Sortiertes Array:</h3>
-      <pre>{{ sortedArray() }}</pre>
-    </div>
-  }
+  <button
+    (click)="calculateWithoutWorker(fibuNumber)"
+  >
+    <strong>ohne</strong> WW {{fibuNumber}}
+  </button>
+  <div>
+    Result:  {{result()}}
+  </div>
 </div>
+<div>
+  <button
+    (click)="incrementCounter()"
+  >
+    counter++
+  </button>
+  <button
+    (click)="resetCounter()"
+  >
+    reset
+  </button>
+  <div>
+    Counter: {{counter}}
+  </div>
+</div>
+
